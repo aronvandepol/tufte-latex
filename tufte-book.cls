@@ -11,9 +11,21 @@
 % Load the common style elements
 \input{tufte-common.def}
 
+%%
+% Load the paracol package for parallel columns (sidenotes that break across pages)
+\RequirePackage{paracol}
 
 %%
 % Set up any book-specific stuff now
+
+%%
+% Configure paracol for Tufte-style layout
+\setlength{\columnseprule}{0pt}
+\setlength{\columnsep}{\marginparsep}
+\globalcounter{figure}
+\globalcounter{table}
+\globalcounter{footnote}
+\globalcounter{mpfootnote}
 
 %%
 % The front matter in Tufte's /Beautiful Evidence/ contains everything up

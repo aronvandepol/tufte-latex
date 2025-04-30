@@ -1,0 +1,37 @@
+\documentclass{tufte-handout}
+\usepackage{lipsum}
+
+\title{Testing Long Sidenotes in Tufte-LaTeX}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+This document demonstrates the new page-breaking sidenotes functionality in the modified Tufte-LaTeX class. The sidenotes should now flow naturally across page boundaries when they are too long to fit on a single page.
+
+\section{Testing Long Sidenotes}
+
+Here is a paragraph with a very long sidenote.\sidenote{\lipsum[1-2]} The sidenote should break across pages if it's too long to fit on the current page.
+
+\lipsum[3]
+
+Here is another paragraph with a regular sidenote.\sidenote{This is a regular-sized sidenote that should fit on a single page.}
+
+\lipsum[4]
+
+Here's a paragraph with a marginnote.\marginnote{\lipsum[5]} This marginnote should also break across pages if needed.
+
+\lipsum[6-8]
+
+\section{Testing Multiple Sidenotes}
+
+Let's test multiple sidenotes in close proximity to see how they interact.
+
+First note.\sidenote{First sidenote content.} Second note right after.\sidenote{Second sidenote content.} Third note.\sidenote{\lipsum[9]} These should stack properly.
+
+\lipsum[10-12]
+
+\end{document}

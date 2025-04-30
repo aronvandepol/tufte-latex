@@ -457,11 +457,27 @@
   {}
   {\geometry{asymmetric}}% forces internal LaTeX `twoside'
 
+% Store the margin width for use with paracol
+\newlength{\@tufte@margin@col@width}
+\setlength{\@tufte@margin@col@width}{\marginparwidth}
+
 
 %%
 % Separation marginpars by a line's worth of space.
 
 \setlength\marginparpush{10pt}
+
+%%
+% Initialize the parallel columns for main text and sidenotes
+\AtBeginDocument{%
+  \begin{paracol}{2}
+  \setcolumnwidth{\textwidth, \@tufte@margin@col@width}
+  \switchcolumn[0]* % Start in the main text column
+}
+
+\AtEndDocument{%
+  \end{paracol}
+}
 
 %%
 % Font for margin items
@@ -923,24 +939,25 @@
   % Snag the last bibentry in the list for later comparison
   \let\@temp@last@bibkey\@empty%
   \@for\@temp@bibkey:=\@tufte@citations\do{\let\@temp@last@bibkey\@temp@bibkey}%
-  \marginpar{%
-    \hbox{}\vspace*{#1}%
-    \@tufte@citation@font%
-    \@tufte@citation@justification%
-    \@tufte@margin@par% use parindent and parskip settings for marginal text
-    \vspace*{-1\baselineskip}%
-    % Loop through all the bibentries, separating them with semicolons and spaces
-    \setcounter{@tufte@num@bibkeys}{0}%
-    \@for\@temp@bibkeyx:=\@tufte@citations\do{%
-      \ifthenelse{\equal{\@temp@last@bibkey}{\@temp@bibkeyx}}%
-        {\ifthenelse{\equal{\value{@tufte@num@bibkeys}}{0}}{}{and\ }%
-         \@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
-         \bibentry{\@temp@bibkeyx}}%
-        {\@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
-         \bibentry{\@temp@bibkeyx};\ }%
-      \stepcounter{@tufte@num@bibkeys}%
-    }%
+  \switchcolumn[1]%
+  \vspace*{#1}%
+  \@tufte@citation@font%
+  \@tufte@citation@justification%
+  \@tufte@margin@par% use parindent and parskip settings for marginal text
+  \vspace*{-1\baselineskip}%
+  % Loop through all the bibentries, separating them with semicolons and spaces
+  \setcounter{@tufte@num@bibkeys}{0}%
+  \@for\@temp@bibkeyx:=\@tufte@citations\do{%
+    \ifthenelse{\equal{\@temp@last@bibkey}{\@temp@bibkeyx}}%
+      {\ifthenelse{\equal{\value{@tufte@num@bibkeys}}{0}}{}{and\ }%
+       \@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
+       \bibentry{\@temp@bibkeyx}}%
+      {\@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
+       \bibentry{\@temp@bibkeyx};\ }%
+    \stepcounter{@tufte@num@bibkeys}%
   }%
+  \par\vspace{\marginparpush}%
+  \switchcolumn[0]*%
 }
 
 %%
@@ -998,10 +1015,34 @@
   \fi
 }
 
+% Redefine footnotetext to use paracol instead of marginpar
 \renewcommand\@footnotetext[2][0pt]{%
-  \marginpar{%
-    \hbox{}\vspace*{#1}%
-    \def\baselinestretch {\setspace@singlespace}%
+  \switchcolumn[1]%
+  \vspace*{#1}%
+  \def\baselinestretch{\setspace@singlespace}%
+  \reset@font\footnotesize%
+  \@tufte@margin@par% use parindent and parskip settings for marginal text
+  \vspace*{-1\baselineskip}\noindent%
+  \protected@edef\@currentlabel{%
+     \csname p@footnote\endcsname\@thefnmark%
+  }%
+  \color@begingroup%
+     \@makefntext{%
+       \ignorespaces#2%
+     }%
+  \color@endgroup%
+  \par\vspace{\marginparpush}%
+  \switchcolumn[0]*%
+}
+
+% Ensure this is run after the bidi package has been loaded
+\def\@tufte@pkghook@post@bidi{}%
+\g@addto@macro{\@tufte@pkghook@post@bidi}{%
+  \renewcommand\@footnotetext[2][0pt]{%
+    \switchcolumn[1]%
+    \vspace*{#1}%
+    \def\baselinestretch{\setspace@singlespace}%
+    \if@rl@footnote\@rltrue\else\@rlfalse\fi%
     \reset@font\footnotesize%
     \@tufte@margin@par% use parindent and parskip settings for marginal text
     \vspace*{-1\baselineskip}\noindent%
@@ -1013,29 +1054,8 @@
          \ignorespaces#2%
        }%
     \color@endgroup%
-  }%
-}%
-
-% Ensure this is run after the bidi package has been loaded
-\def\@tufte@pkghook@post@bidi{}%
-\g@addto@macro{\@tufte@pkghook@post@bidi}{%
-  \renewcommand\@footnotetext[2][0pt]{%
-    \marginpar{%
-      \hbox{}\vspace*{#1}%
-      \def\baselinestretch {\setspace@singlespace}%
-      \if@rl@footnote\@rltrue\else\@rlfalse\fi%
-      \reset@font\footnotesize%
-      \@tufte@margin@par% use parindent and parskip settings for marginal text
-      \vspace*{-1\baselineskip}\noindent%
-      \protected@edef\@currentlabel{%
-         \csname p@footnote\endcsname\@thefnmark%
-      }%
-      \color@begingroup%
-         \@makefntext{%
-           \ignorespaces#2%
-         }%
-      \color@endgroup%
-    }%
+    \par\vspace{\marginparpush}%
+    \switchcolumn[0]*%
   }%
 }%
 
@@ -1089,7 +1109,11 @@
     \let\cite\@tufte@infootnote@cite%   use the in-sidenote \cite command
   }{}%
   \gdef\@tufte@citations{}%           clear out any old citations
-  \marginpar{\hbox{}\vspace*{#1}\@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par\vspace*{-1\baselineskip}\noindent #2}%
+  \switchcolumn[1]%
+  \vspace*{#1}%
+  \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par\vspace*{-1\baselineskip}\noindent #2%
+  \par\vspace{\marginparpush}%
+  \switchcolumn[0]*%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
     \let\cite\@tufte@normal@cite%       go back to using normal in-text \cite command
@@ -1110,7 +1134,7 @@
 \newenvironment{@tufte@margin@float}[2][-1.2ex]%
   {\FloatBarrier% process all floats before this point so the figure/table numbers stay in order.
   \begin{lrbox}{\@tufte@margin@floatbox}%
-  \begin{minipage}{\marginparwidth}%
+  \begin{minipage}{\@tufte@margin@col@width}%
     \@tufte@caption@font%
     \def\@captype{#2}%
     \hbox{}\vspace*{#1}%
@@ -1120,7 +1144,10 @@
   }
   {\end{minipage}%
   \end{lrbox}%
-  \marginpar{\usebox{\@tufte@margin@floatbox}}%
+  \switchcolumn[1]%
+  \usebox{\@tufte@margin@floatbox}%
+  \par\vspace{\marginparpush}%
+  \switchcolumn[0]*%
   }
 
 
@@ -1373,13 +1400,17 @@
 % Full-page-width area
 
 \newenvironment{fullwidth}
-  {\ifthenelse{\boolean{@tufte@symmetric}}%
+  {\end{paracol}% End the parallel columns
+   \ifthenelse{\boolean{@tufte@symmetric}}%
      {\ifthenelse{\boolean{@tufte@changepage}}{\begin{adjustwidth*}{}{-\@tufte@overhang}}{\begin{adjustwidth}[]{}{-\@tufte@overhang}}}%
      {\begin{adjustwidth}{}{-\@tufte@overhang}}%
   }%
   {\ifthenelse{\boolean{@tufte@symmetric}}%
     {\ifthenelse{\boolean{@tufte@changepage}}{\end{adjustwidth*}}{\end{adjustwidth}}}%
     {\end{adjustwidth}}%
+   \begin{paracol}{2}% Restart the parallel columns
+   \setcolumnwidth{\textwidth, \@tufte@margin@col@width}%
+   \switchcolumn[0]*% Return to the main text column
   }
 
 %%
