@@ -11,6 +11,13 @@
 % Load the common style elements
 \input{tufte-common.def}
 
+%%
+% Load the paracol package for parallel columns (sidenotes that break across pages)
+\RequirePackage{paracol}
+
+%%
+% Load the paracol package for parallel columns (sidenotes that break across pages)
+\RequirePackage{paracol}
 
 %%
 % Set up any handout-specific stuff now
