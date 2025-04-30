@@ -459,7 +459,7 @@
 
 % Store the margin width for use with paracol
 \newlength{\@tufte@margin@col@width}
-\setlength{\@tufte@margin@col@width}{\marginparwidth}
+\setlength{\@tufte@margin@col@width}{\dimexpr\marginparwidth+\marginparsep} % Account for marginparsep
 
 
 %%
@@ -471,7 +471,8 @@
 % Initialize the parallel columns for main text and sidenotes
 \AtBeginDocument{%
   \begin{paracol}{2}
-  \setcolumnwidth{\textwidth, \@tufte@margin@col@width}
+  \setcolumnwidth{\textwidth, \dimexpr\marginparwidth+\marginparsep}
+  \setlength{\columnsep}{\marginparsep}
   \switchcolumn[0]* % Start in the main text column
 }
 
@@ -1098,8 +1099,9 @@
   \kern\multiplefootnotemarker\relax% add new \kern here to replace the one we yanked
 }
 
-\newcommand{\sidenote}{\optparams{\@tufte@sidenote}{[][0pt]}}
-\renewcommand{\footnote}{\optparams{\@tufte@sidenote}{[][0pt]}}
+\let\@tufte@orig@footnote\footnote % Save original footnote
+\renewcommand{\footnote}{\@tufte@orig@footnote} % Restore original footnote
+\newcommand{\sidenote}{\optparams{\@tufte@sidenote}{[][0pt]}} % Keep sidenote as separate command
 
 %%
 % Sidenote without the footnote mark
@@ -1409,7 +1411,8 @@
     {\ifthenelse{\boolean{@tufte@changepage}}{\end{adjustwidth*}}{\end{adjustwidth}}}%
     {\end{adjustwidth}}%
    \begin{paracol}{2}% Restart the parallel columns
-   \setcolumnwidth{\textwidth, \@tufte@margin@col@width}%
+   \setcolumnwidth{\textwidth, \dimexpr\marginparwidth+\marginparsep}%
+   \setlength{\columnsep}{\marginparsep}%
    \switchcolumn[0]*% Return to the main text column
   }
 
