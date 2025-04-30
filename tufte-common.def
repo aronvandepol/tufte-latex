@@ -441,25 +441,48 @@
 
 
 %%
-% Set page layout geometry
+% Set page layout geometry to match Tufte's specifications
+\RequirePackage[letterpaper,
+  left=1in,
+  top=1in,
+  headsep=2\baselineskip,
+  textwidth=26pc,    % 10.5in - 4.5in margin = 6in (26pc)
+  marginparsep=2pc,
+  marginparwidth=12pc, % 4.5in margin (12pc)
+  textheight=44\baselineskip,
+  headheight=\baselineskip,
+  includeheadfoot]{geometry}
 
-\RequirePackage[letterpaper,left=1in,top=1in,headsep=2\baselineskip,textwidth=26pc,marginparsep=2pc,marginparwidth=12pc,textheight=44\baselineskip,headheight=\baselineskip]{geometry}
-
+% Adjust for A4 paper if requested
 \ifthenelse{\boolean{@tufte@afourpaper}}
-  {\geometry{a4paper,left=24.8mm,top=27.4mm,headsep=2\baselineskip,textwidth=107mm,marginparsep=8.2mm,marginparwidth=49.4mm,textheight=49\baselineskip,headheight=\baselineskip}}
+  {\geometry{a4paper,
+    left=24.8mm,
+    top=27.4mm,
+    textwidth=107mm,
+    marginparsep=8.2mm,
+    marginparwidth=49.4mm,
+    textheight=49\baselineskip}}
   {}
 
+% Adjust for B5 paper if requested  
 \ifthenelse{\boolean{@tufte@bfivepaper}}
-  {\geometry{paperwidth=176mm,paperheight=250mm,left=14.66mm,top=13.88mm,textwidth=102.66mm,marginparsep=7.33mm,marginparwidth=36.66mm,textheight=38\baselineskip,includehead}}
+  {\geometry{paperwidth=176mm,
+    paperheight=250mm,
+    left=14.66mm,
+    top=13.88mm,
+    textwidth=102.66mm,
+    marginparsep=7.33mm,
+    marginparwidth=36.66mm,
+    textheight=38\baselineskip}}
   {}
 
-\ifthenelse{\boolean{@tufte@symmetric}}
-  {}
-  {\geometry{asymmetric}}% forces internal LaTeX `twoside'
+% Set up paracol columns to match Tufte's layout
+\setlength{\columnsep}{\marginparsep}
+\setlength{\columnseprule}{0pt}
 
-% Store the margin width for use with paracol
+% Store margin column width including parsep
 \newlength{\@tufte@margin@col@width}
-\setlength{\@tufte@margin@col@width}{\dimexpr\marginparwidth+\marginparsep} % Account for marginparsep
+\setlength{\@tufte@margin@col@width}{\dimexpr\marginparwidth+\columnsep}
 
 
 %%
@@ -1078,18 +1101,18 @@
     \gsetlength{\@tufte@sidenote@vertical@offset}{0pt}%
   }%
   \ifthenelse{\isempty{#1}}{%
-    % no specific footnote number provided
-    \stepcounter\@mpfn%
-    \protected@xdef\@thefnmark{\thempfn}%
-    \@footnotemark\@footnotetext[\@tufte@sidenote@vertical@offset]{#3}%
+    % no specific number provided
+    \refstepcounter{sidenote}%
+    \sidenotemark%
   }{%
-    % specific footnote number provided
-    \begingroup%
-      \csname c@\@mpfn\endcsname #1\relax%
-      \unrestored@protected@xdef\@thefnmark{\thempfn}%
-    \endgroup%
-    \@footnotemark\@footnotetext[\@tufte@sidenote@vertical@offset]{#3}%
+    % specific number provided
+    \sidenotemark[#1]%
   }%
+  \switchcolumn[1]%
+  \vspace*{\@tufte@sidenote@vertical@offset}%
+  \@makesidenotetext{#3}%
+  \par\vspace{\marginparpush}%
+  \switchcolumn[0]*%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
     \let\cite\@tufte@normal@cite%       go back to using normal in-text \cite command
