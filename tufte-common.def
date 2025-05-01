@@ -852,6 +852,7 @@
 %%
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
+\RequirePackage{etoolbox}% needed for mdframed
 \RequirePackage{mdframed}% for page-breaking sidenotes
 \mdfdefinestyle{tuftesidenote}{%
   hidealllines=true,
@@ -864,7 +865,17 @@
   needspace=2em,
   splitbottomskip=0pt,
   splittopskip=0pt,
-  backgroundcolor=white
+  backgroundcolor=white,
+  nobreak=false,
+  everypage=true,
+  allowdisplaybreaks=true,
+  singleextra={},
+  firstextra={},
+  middleextra={},
+  secondextra={},
+  splitbottomskip=0pt,
+  splittopskip=0pt,
+  frametitle={}
 }
 
 %%
