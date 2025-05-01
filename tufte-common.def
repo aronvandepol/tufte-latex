@@ -493,6 +493,17 @@
 % We don't need parallel columns for main text and sidenotes anymore
 % since we're using mdframed for page-breaking sidenotes
 
+% Redefine marginpar to better handle page breaks
+\let\oldmarginpar\marginpar
+\renewcommand{\marginpar}[1]{%
+  \oldmarginpar{%
+    \raggedright%
+    \setlength{\parskip}{0.5\baselineskip}%
+    \setlength{\parindent}{0pt}%
+    #1%
+  }%
+}
+
 %%
 % Font for margin items
 
@@ -853,6 +864,7 @@
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
 \RequirePackage{etoolbox}% needed for mdframed
+\RequirePackage{needspace}% helps with page breaking
 \RequirePackage{mdframed}% for page-breaking sidenotes
 \mdfdefinestyle{tuftesidenote}{%
   hidealllines=true,
@@ -866,16 +878,7 @@
   splitbottomskip=0pt,
   splittopskip=0pt,
   backgroundcolor=white,
-  nobreak=false,
-  everypage=true,
-  allowdisplaybreaks=true,
-  singleextra={},
-  firstextra={},
-  middleextra={},
-  secondextra={},
-  splitbottomskip=0pt,
-  splittopskip=0pt,
-  frametitle={}
+  nobreak=false
 }
 
 %%
