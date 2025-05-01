@@ -853,6 +853,19 @@
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
 \RequirePackage{mdframed}% for page-breaking sidenotes
+\mdfdefinestyle{tuftesidenote}{%
+  hidealllines=true,
+  skipabove=0pt,
+  skipbelow=0pt,
+  innerleftmargin=0pt,
+  innerrightmargin=0pt,
+  innertopmargin=0pt,
+  innerbottommargin=0pt,
+  needspace=2em,
+  splitbottomskip=0pt,
+  splittopskip=0pt,
+  backgroundcolor=white
+}
 
 %%
 % Load the bidi package if instructed to do so.  This package must be loaded
@@ -956,7 +969,7 @@
   \@for\@temp@bibkey:=\@tufte@citations\do{\let\@temp@last@bibkey\@temp@bibkey}%
   \marginpar{%
     \vspace*{#1}%
-    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+    \begin{mdframed}[style=tuftesidenote]%
       \@tufte@citation@font%
       \@tufte@citation@justification%
       \@tufte@margin@par% use parindent and parskip settings for marginal text
@@ -1041,7 +1054,7 @@
 \renewcommand\@footnotetext[2][0pt]{%
   \marginpar{%
     \vspace*{#1}%
-    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+    \begin{mdframed}[style=tuftesidenote]%
       \def\baselinestretch{\setspace@singlespace}%
       \reset@font\footnotesize%
       \@tufte@margin@par% use parindent and parskip settings for marginal text
@@ -1063,7 +1076,7 @@
   \renewcommand\@footnotetext[2][0pt]{%
     \marginpar{%
       \vspace*{#1}%
-      \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+      \begin{mdframed}[style=tuftesidenote]%
         \def\baselinestretch{\setspace@singlespace}%
         \if@rl@footnote\@rltrue\else\@rlfalse\fi%
         \reset@font\footnotesize%
@@ -1138,7 +1151,7 @@
   \gdef\@tufte@citations{}%           clear out any old citations
   \marginpar{%
     \vspace*{#1}%
-    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+    \begin{mdframed}[style=tuftesidenote]%
       \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par%
       #2%
     \end{mdframed}%
@@ -1174,7 +1187,7 @@
   {\end{minipage}%
   \end{lrbox}%
   \marginpar{%
-    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+    \begin{mdframed}[style=tuftesidenote]%
       \usebox{\@tufte@margin@floatbox}%
     \end{mdframed}%
   }%
