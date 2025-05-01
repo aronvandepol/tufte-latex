@@ -490,26 +490,8 @@
 \setlength\marginparpush{10pt}
 
 %%
-% Initialize the parallel columns for main text and sidenotes
-\AtBeginDocument{%
-  \typeout{AtBeginDocument (before setcolumnwidth) - Textwidth: \the\textwidth}
-  \typeout{AtBeginDocument (before setcolumnwidth) - Marginparwidth: \the\marginparwidth}
-  \typeout{AtBeginDocument (before setcolumnwidth) - Marginparsep: \the\marginparsep}
-  \newlength{\totalwidth}
-  \setlength{\totalwidth}{\dimexpr\textwidth + \marginparwidth + \marginparsep\relax}
-  \typeout{AtBeginDocument (before setcolumnwidth) - Total Width (calculated): \the\totalwidth}
-  \typeout{AtBeginDocument (before setcolumnwidth) - Total Width (geometry): 468.0pt} % Hardcoded for letterpaper
-  \begin{paracol}{2}
-  \setcolumnwidth{\textwidth, \dimexpr\marginparwidth+\marginparsep}
-  \setlength{\columnsep}{\marginparsep}
-  \typeout{AtBeginDocument (after setcolumnwidth) - Textwidth: \the\textwidth}
-  \typeout{AtBeginDocument (after setcolumnwidth) - Margin Column Width: \the\@tufte@margin@col@width}
-  \switchcolumn[0]* % Start in the main text column
-}
-
-\AtEndDocument{%
-  \end{paracol}
-}
+% We don't need parallel columns for main text and sidenotes anymore
+% since we're using mdframed for page-breaking sidenotes
 
 %%
 % Font for margin items
@@ -870,6 +852,7 @@
 %%
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
+\RequirePackage{mdframed}% for page-breaking sidenotes
 
 %%
 % Load the bidi package if instructed to do so.  This package must be loaded
@@ -971,25 +954,25 @@
   % Snag the last bibentry in the list for later comparison
   \let\@temp@last@bibkey\@empty%
   \@for\@temp@bibkey:=\@tufte@citations\do{\let\@temp@last@bibkey\@temp@bibkey}%
-  \switchcolumn[1]%
-  \vspace*{#1}%
-  \@tufte@citation@font%
-  \@tufte@citation@justification%
-  \@tufte@margin@par% use parindent and parskip settings for marginal text
-  \vspace*{-1\baselineskip}%
-  % Loop through all the bibentries, separating them with semicolons and spaces
-  \setcounter{@tufte@num@bibkeys}{0}%
-  \@for\@temp@bibkeyx:=\@tufte@citations\do{%
-    \ifthenelse{\equal{\@temp@last@bibkey}{\@temp@bibkeyx}}%
-      {\ifthenelse{\equal{\value{@tufte@num@bibkeys}}{0}}{}{and\ }%
-       \@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
-       \bibentry{\@temp@bibkeyx}}%
-      {\@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
-       \bibentry{\@temp@bibkeyx};\ }%
-    \stepcounter{@tufte@num@bibkeys}%
+  \marginpar{%
+    \vspace*{#1}%
+    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+      \@tufte@citation@font%
+      \@tufte@citation@justification%
+      \@tufte@margin@par% use parindent and parskip settings for marginal text
+      % Loop through all the bibentries, separating them with semicolons and spaces
+      \setcounter{@tufte@num@bibkeys}{0}%
+      \@for\@temp@bibkeyx:=\@tufte@citations\do{%
+        \ifthenelse{\equal{\@temp@last@bibkey}{\@temp@bibkeyx}}%
+          {\ifthenelse{\equal{\value{@tufte@num@bibkeys}}{0}}{}{and\ }%
+           \@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
+           \bibentry{\@temp@bibkeyx}}%
+          {\@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
+           \bibentry{\@temp@bibkeyx};\ }%
+        \stepcounter{@tufte@num@bibkeys}%
+      }%
+    \end{mdframed}%
   }%
-  \par\vspace{\marginparpush}%
-  \switchcolumn[0]*%
 }
 
 %%
@@ -1054,49 +1037,47 @@
   \fi
 }
 
-% Redefine footnotetext to use paracol instead of marginpar
-% Redefine footnotetext to use paracol instead of marginpar
+% Redefine footnotetext to use mdframed for page-breaking
 \renewcommand\@footnotetext[2][0pt]{%
-  %\switchcolumn[1]%  Comment out the switchcolumn command
-  \hspace*{\marginparwidth}%  Shift the sidenote horizontally
-  \vspace*{#1}%
-  \def\baselinestretch{\setspace@singlespace}%
-  \reset@font\footnotesize%
-  \@tufte@margin@par% use parindent and parskip settings for marginal text
-  \vspace*{-1\baselineskip}\noindent%
-  \protected@edef\@currentlabel{%
-     \csname p@footnote\endcsname\@thefnmark%
+  \marginpar{%
+    \vspace*{#1}%
+    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+      \def\baselinestretch{\setspace@singlespace}%
+      \reset@font\footnotesize%
+      \@tufte@margin@par% use parindent and parskip settings for marginal text
+      \protected@edef\@currentlabel{%
+         \csname p@footnote\endcsname\@thefnmark%
+      }%
+      \color@begingroup%
+         \@makefntext{%
+           \ignorespaces#2%
+         }%
+      \color@endgroup%
+    \end{mdframed}%
   }%
-  \color@begingroup%
-     \@makefntext{%
-       \ignorespaces#2%
-     }%
-  \color@endgroup%
-  \par\vspace{\marginparpush}%
-  \switchcolumn[0]*%
 }
 
 % Ensure this is run after the bidi package has been loaded
 \def\@tufte@pkghook@post@bidi{}%
 \g@addto@macro{\@tufte@pkghook@post@bidi}{%
   \renewcommand\@footnotetext[2][0pt]{%
-    \switchcolumn[1]%
-    \vspace*{#1}%
-    \def\baselinestretch{\setspace@singlespace}%
-    \if@rl@footnote\@rltrue\else\@rlfalse\fi%
-    \reset@font\footnotesize%
-    \@tufte@margin@par% use parindent and parskip settings for marginal text
-    \vspace*{-1\baselineskip}\noindent%
-    \protected@edef\@currentlabel{%
-       \csname p@footnote\endcsname\@thefnmark%
+    \marginpar{%
+      \vspace*{#1}%
+      \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+        \def\baselinestretch{\setspace@singlespace}%
+        \if@rl@footnote\@rltrue\else\@rlfalse\fi%
+        \reset@font\footnotesize%
+        \@tufte@margin@par% use parindent and parskip settings for marginal text
+        \protected@edef\@currentlabel{%
+           \csname p@footnote\endcsname\@thefnmark%
+        }%
+        \color@begingroup%
+           \@makefntext{%
+             \ignorespaces#2%
+           }%
+        \color@endgroup%
+      \end{mdframed}%
     }%
-    \color@begingroup%
-       \@makefntext{%
-         \ignorespaces#2%
-       }%
-    \color@endgroup%
-    \par\vspace{\marginparpush}%
-    \switchcolumn[0]*%
   }%
 }%
 
@@ -1125,11 +1106,15 @@
     % specific number provided
     \sidenotemark[#1]%
   }%
-  \switchcolumn[1]%
-  \vspace*{\@tufte@sidenote@vertical@offset}%
-  \@makesidenotetext{#3}%
-  \par\vspace{\marginparpush}%
-  \switchcolumn[0]*%
+  % Place the sidenote in the margin using mdframed for page breaking
+  \marginpar{%
+    \vspace*{\@tufte@sidenote@vertical@offset}%
+    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+      \@tufte@sidenote@font\@tufte@sidenote@justification%
+      \@textsuperscript{\tiny\thesidenote}\,%
+      #3%
+    \end{mdframed}%
+  }%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
     \let\cite\@tufte@normal@cite%       go back to using normal in-text \cite command
@@ -1151,11 +1136,13 @@
     \let\cite\@tufte@infootnote@cite%   use the in-sidenote \cite command
   }{}%
   \gdef\@tufte@citations{}%           clear out any old citations
-  \switchcolumn[1]%
-  \vspace*{#1}%
-  \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par\vspace*{-1\baselineskip}\noindent #2%
-  \par\vspace{\marginparpush}%
-  \switchcolumn[0]*%
+  \marginpar{%
+    \vspace*{#1}%
+    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+      \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par%
+      #2%
+    \end{mdframed}%
+  }%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
     \let\cite\@tufte@normal@cite%       go back to using normal in-text \cite command
@@ -1176,7 +1163,7 @@
 \newenvironment{@tufte@margin@float}[2][-1.2ex]%
   {\FloatBarrier% process all floats before this point so the figure/table numbers stay in order.
   \begin{lrbox}{\@tufte@margin@floatbox}%
-  \begin{minipage}{\@tufte@margin@col@width}%
+  \begin{minipage}{\marginparwidth}%
     \@tufte@caption@font%
     \def\@captype{#2}%
     \hbox{}\vspace*{#1}%
@@ -1186,10 +1173,11 @@
   }
   {\end{minipage}%
   \end{lrbox}%
-  \switchcolumn[1]%
-  \usebox{\@tufte@margin@floatbox}%
-  \par\vspace{\marginparpush}%
-  \switchcolumn[0]*%
+  \marginpar{%
+    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+      \usebox{\@tufte@margin@floatbox}%
+    \end{mdframed}%
+  }%
   }
 
 
