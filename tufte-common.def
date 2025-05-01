@@ -493,7 +493,7 @@
 % We don't need parallel columns for main text and sidenotes anymore
 % since we're using mdframed for page-breaking sidenotes
 
-% Redefine marginpar to use cutwin
+% Redefine marginpar with better settings for breaking across pages
 \renewcommand{\marginpar}[1]{%
   \oldmarginpar{%
     \@tufte@marginnote@font\@tufte@marginnote@justification%
@@ -501,6 +501,7 @@
     \setlength{\parindent}{0pt}%
     \setlength{\parfillskip}{0pt plus 1fil}%
     \setlength{\emergencystretch}{3em}%
+    \sloppy\raggedright%
     #1%
   }%
 }
@@ -865,15 +866,9 @@
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
 \RequirePackage{etoolbox}% needed for utility functions
-\RequirePackage{cutwin}% for handling text with cutouts (margin notes)
 \RequirePackage{afterpage}% for handling page breaks
 
-% Configure cutwin for our margin notes
-\renewcommand{\windowpagestuff}{\relax}
-\setlength{\windowwidth}{\marginparwidth}
-\setlength{\windowrightmargin}{\dimexpr\textwidth+\marginparsep\relax}
-
-% Save the original marginpar command
+% Use the standard marginpar mechanism but with improved settings
 \let\oldmarginpar\marginpar
 
 %%
@@ -1128,16 +1123,15 @@
     % specific number provided
     \sidenotemark[#1]%
   }%
-  % Place the sidenote in the margin using cutwin for page breaking
+  % Place the sidenote in the margin with improved settings
   \marginpar{%
     \vspace*{\@tufte@sidenote@vertical@offset}%
     \@tufte@sidenote@font\@tufte@sidenote@justification%
     \@textsuperscript{\tiny\thesidenote}\,%
     \setlength{\parfillskip}{0pt plus 1fil}%
     \setlength{\emergencystretch}{3em}%
-    \begin{minipage}[t]{\marginparwidth}%
-      #3%
-    \end{minipage}%
+    \sloppy\raggedright%
+    #3%
   }%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
