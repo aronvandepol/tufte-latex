@@ -493,16 +493,14 @@
 % We don't need parallel columns for main text and sidenotes anymore
 % since we're using mdframed for page-breaking sidenotes
 
-% Redefine marginpar to better handle page breaks
-\let\oldmarginpar\marginpar
+% Completely redefine marginpar to use flowfram
 \renewcommand{\marginpar}[1]{%
-  \oldmarginpar{%
-    \raggedright%
+  \begin{staticcontents*}{marginframe}%
+    \@tufte@marginnote@font\@tufte@marginnote@justification%
     \setlength{\parskip}{0.5\baselineskip}%
     \setlength{\parindent}{0pt}%
-    \hsize=\marginparwidth% ensure correct width
-    #1%
-  }%
+    #1\par\vspace{\baselineskip}%
+  \end{staticcontents*}%
 }
 
 %%
@@ -864,23 +862,16 @@
 %%
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
-\RequirePackage{etoolbox}% needed for mdframed
-\RequirePackage{needspace}% helps with page breaking
-\RequirePackage{mdframed}% for page-breaking sidenotes
-\mdfdefinestyle{tuftesidenote}{%
-  hidealllines=true,
-  skipabove=0pt,
-  skipbelow=0pt,
-  innerleftmargin=0pt,
-  innerrightmargin=0pt,
-  innertopmargin=0pt,
-  innerbottommargin=0pt,
-  needspace=2em,
-  splitbottomskip=0pt,
-  splittopskip=0pt,
-  backgroundcolor=white,
-  nobreak=false
-}
+\RequirePackage{etoolbox}% needed for utility functions
+\RequirePackage{flowfram}% for flowing text across frames (sidenotes)
+\RequirePackage{afterpage}% for handling page breaks
+
+% Create a static frame for the margin notes that spans multiple pages
+\newflowframe[\arabic{page}]{\marginparwidth}{\textheight}{%
+  \dimexpr\textwidth+\marginparsep\relax}{0pt}[marginframe]
+
+% Save the original marginpar command
+\let\oldmarginpar\marginpar
 
 %%
 % Load the bidi package if instructed to do so.  This package must be loaded
@@ -1134,15 +1125,15 @@
     % specific number provided
     \sidenotemark[#1]%
   }%
-  % Place the sidenote in the margin using a minipage for better page breaking
-  \marginpar{%
+  % Place the sidenote in the margin using flowfram for page breaking
+  \begin{staticcontents*}{marginframe}%
     \vspace*{\@tufte@sidenote@vertical@offset}%
     \@tufte@sidenote@font\@tufte@sidenote@justification%
     \@textsuperscript{\tiny\thesidenote}\,%
     \setlength{\parfillskip}{0pt plus 1fil}%
     \setlength{\emergencystretch}{3em}%
-    #3%
-  }%
+    #3\par\vspace{\baselineskip}%
+  \end{staticcontents*}%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
     \let\cite\@tufte@normal@cite%       go back to using normal in-text \cite command
