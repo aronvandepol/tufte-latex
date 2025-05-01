@@ -1,0 +1,30 @@
+\documentclass{tufte-handout}
+\usepackage{lipsum}
+
+\title{Testing Cutwin Sidenotes}
+\author{Test Author}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Testing Long Sidenotes}
+
+This paragraph has a very long sidenote that should break across pages.\sidenote{This is a very long sidenote that should break across pages. 
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi aliquam mauris quis nunc gravida aliquet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque congue dignissim dui, at bibendum orci faucibus et. Vivamus in tellus id nisi varius volutpat et a est. Suspendisse potenti. Donec non blandit nulla. Aliquam bibendum tortor non felis pellentesque fermentum. Sed lobortis elit vitae magna facilisis a dignissim lectus eleifend. Ut mauris arcu, aliquet at adipiscing et, porttitor id ligula. Vivamus nec felis massa. Donec vitae augue quis diam malesuada porttitor ac a enim. Nunc nec facilisis sem. Sed a libero nunc. Nulla id orci ac nisi imperdiet ultricies. Cras a lectus tortor, ut scelerisque nulla. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nulla facilisi. Nullam libero nisi, vestibulum vitae consequat a, dictum ac orci. Suspendisse potenti. Proin urna nisl, interdum non aliquam commodo, lobortis in urna. Phasellus quis nunc nec ante gravida dictum. Nulla facilisi. Cras venenatis, ipsum sit amet vestibulum sollicitudin, est justo molestie turpis, ac ultrices mi ipsum vitae orci. Sed libero ante, varius non interdum at, molestie quis lectus. Proin vel interdum metus. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Suspendisse potenti. Donec dignissim sagittis lacus, a auctor leo ultricies et. Donec semper arcu a augue fringilla tempus.}
+
+\lipsum[1-2]
+
+Here is another paragraph with a regular sidenote.\sidenote{This is a regular-sized sidenote that should fit on a single page.}
+
+\lipsum[3-4]
+
+\section{Another Section}
+
+\lipsum[5]
+
+Here's a paragraph with a marginnote.\marginnote{This is a margin note that should also break across pages if needed. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi aliquam mauris quis nunc gravida aliquet. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Quisque congue dignissim dui, at bibendum orci faucibus et. Vivamus in tellus id nisi varius volutpat et a est. Suspendisse potenti. Donec non blandit nulla. Aliquam bibendum tortor non felis pellentesque fermentum.}
+
+\lipsum[6-8]
+
+\end{document}

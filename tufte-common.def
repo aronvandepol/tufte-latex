@@ -493,14 +493,16 @@
 % We don't need parallel columns for main text and sidenotes anymore
 % since we're using mdframed for page-breaking sidenotes
 
-% Completely redefine marginpar to use flowfram
+% Redefine marginpar to use cutwin
 \renewcommand{\marginpar}[1]{%
-  \begin{staticcontents*}{marginframe}%
+  \oldmarginpar{%
     \@tufte@marginnote@font\@tufte@marginnote@justification%
     \setlength{\parskip}{0.5\baselineskip}%
     \setlength{\parindent}{0pt}%
-    #1\par\vspace{\baselineskip}%
-  \end{staticcontents*}%
+    \setlength{\parfillskip}{0pt plus 1fil}%
+    \setlength{\emergencystretch}{3em}%
+    #1%
+  }%
 }
 
 %%
@@ -863,12 +865,13 @@
 % Color
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
 \RequirePackage{etoolbox}% needed for utility functions
-\RequirePackage{flowfram}% for flowing text across frames (sidenotes)
+\RequirePackage{cutwin}% for handling text with cutouts (margin notes)
 \RequirePackage{afterpage}% for handling page breaks
 
-% Create a static frame for the margin notes that spans multiple pages
-\newflowframe[\arabic{page}]{\marginparwidth}{\textheight}{%
-  \dimexpr\textwidth+\marginparsep\relax}{0pt}[marginframe]
+% Configure cutwin for our margin notes
+\renewcommand{\windowpagestuff}{\relax}
+\setlength{\windowwidth}{\marginparwidth}
+\setlength{\windowrightmargin}{\dimexpr\textwidth+\marginparsep\relax}
 
 % Save the original marginpar command
 \let\oldmarginpar\marginpar
@@ -1125,15 +1128,17 @@
     % specific number provided
     \sidenotemark[#1]%
   }%
-  % Place the sidenote in the margin using flowfram for page breaking
-  \begin{staticcontents*}{marginframe}%
+  % Place the sidenote in the margin using cutwin for page breaking
+  \marginpar{%
     \vspace*{\@tufte@sidenote@vertical@offset}%
     \@tufte@sidenote@font\@tufte@sidenote@justification%
     \@textsuperscript{\tiny\thesidenote}\,%
     \setlength{\parfillskip}{0pt plus 1fil}%
     \setlength{\emergencystretch}{3em}%
-    #3\par\vspace{\baselineskip}%
-  \end{staticcontents*}%
+    \begin{minipage}[t]{\marginparwidth}%
+      #3%
+    \end{minipage}%
+  }%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
     \let\cite\@tufte@normal@cite%       go back to using normal in-text \cite command
