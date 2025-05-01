@@ -440,15 +440,14 @@
 }
 
 
-%%
 % Set page layout geometry to match Tufte's specifications
 \RequirePackage[letterpaper,
   left=1in,
   top=1in,
   headsep=2\baselineskip,
-  textwidth=26pc,    % 10.5in - 4.5in margin = 6in (26pc)
-  marginparsep=2pc,
-  marginparwidth=12pc, % 4.5in margin (12pc)
+  textwidth=27pc,
+  marginparsep=3pc,
+  marginparwidth=9pc,
   textheight=44\baselineskip,
   headheight=\baselineskip,
   includeheadfoot]{geometry}
@@ -493,9 +492,18 @@
 %%
 % Initialize the parallel columns for main text and sidenotes
 \AtBeginDocument{%
+  \typeout{AtBeginDocument (before setcolumnwidth) - Textwidth: \the\textwidth}
+  \typeout{AtBeginDocument (before setcolumnwidth) - Marginparwidth: \the\marginparwidth}
+  \typeout{AtBeginDocument (before setcolumnwidth) - Marginparsep: \the\marginparsep}
+  \newlength{\totalwidth}
+  \setlength{\totalwidth}{\dimexpr\textwidth + \marginparwidth + \marginparsep\relax}
+  \typeout{AtBeginDocument (before setcolumnwidth) - Total Width (calculated): \the\totalwidth}
+  \typeout{AtBeginDocument (before setcolumnwidth) - Total Width (geometry): 468.0pt} % Hardcoded for letterpaper
   \begin{paracol}{2}
   \setcolumnwidth{\textwidth, \dimexpr\marginparwidth+\marginparsep}
   \setlength{\columnsep}{\marginparsep}
+  \typeout{AtBeginDocument (after setcolumnwidth) - Textwidth: \the\textwidth}
+  \typeout{AtBeginDocument (after setcolumnwidth) - Margin Column Width: \the\@tufte@margin@col@width}
   \switchcolumn[0]* % Start in the main text column
 }
 
@@ -1047,8 +1055,10 @@
 }
 
 % Redefine footnotetext to use paracol instead of marginpar
+% Redefine footnotetext to use paracol instead of marginpar
 \renewcommand\@footnotetext[2][0pt]{%
-  \switchcolumn[1]%
+  %\switchcolumn[1]%  Comment out the switchcolumn command
+  \hspace*{\marginparwidth}%  Shift the sidenote horizontally
   \vspace*{#1}%
   \def\baselinestretch{\setspace@singlespace}%
   \reset@font\footnotesize%
