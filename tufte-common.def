@@ -1122,7 +1122,7 @@
   % Place the sidenote in the margin using mdframed for page breaking
   \marginpar{%
     \vspace*{\@tufte@sidenote@vertical@offset}%
-    \begin{mdframed}[hidealllines=true, skipabove=0pt, skipbelow=0pt, innerleftmargin=0pt, innerrightmargin=0pt]%
+    \begin{mdframed}[style=tuftesidenote]%
       \@tufte@sidenote@font\@tufte@sidenote@justification%
       \@textsuperscript{\tiny\thesidenote}\,%
       #3%
