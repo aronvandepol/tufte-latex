@@ -500,6 +500,7 @@
     \raggedright%
     \setlength{\parskip}{0.5\baselineskip}%
     \setlength{\parindent}{0pt}%
+    \hsize=\marginparwidth% ensure correct width
     #1%
   }%
 }
@@ -865,6 +866,7 @@
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
 \RequirePackage{etoolbox}% needed for mdframed
 \RequirePackage{needspace}% helps with page breaking
+\RequirePackage{tikz}% needed for better mdframed page breaks
 \RequirePackage{mdframed}% for page-breaking sidenotes
 \mdfdefinestyle{tuftesidenote}{%
   hidealllines=true,
@@ -878,7 +880,8 @@
   splitbottomskip=0pt,
   splittopskip=0pt,
   backgroundcolor=white,
-  nobreak=false
+  nobreak=false,
+  framemethod=tikz
 }
 
 %%
@@ -987,6 +990,8 @@
       \@tufte@citation@font%
       \@tufte@citation@justification%
       \@tufte@margin@par% use parindent and parskip settings for marginal text
+      \setlength{\parfillskip}{0pt plus 1fil}%
+      \setlength{\emergencystretch}{3em}%
       % Loop through all the bibentries, separating them with semicolons and spaces
       \setcounter{@tufte@num@bibkeys}{0}%
       \@for\@temp@bibkeyx:=\@tufte@citations\do{%
@@ -1077,6 +1082,8 @@
       }%
       \color@begingroup%
          \@makefntext{%
+           \setlength{\parfillskip}{0pt plus 1fil}%
+           \setlength{\emergencystretch}{3em}%
            \ignorespaces#2%
          }%
       \color@endgroup%
@@ -1100,6 +1107,8 @@
         }%
         \color@begingroup%
            \@makefntext{%
+             \setlength{\parfillskip}{0pt plus 1fil}%
+             \setlength{\emergencystretch}{3em}%
              \ignorespaces#2%
            }%
         \color@endgroup%
@@ -1139,6 +1148,8 @@
     \begin{mdframed}[style=tuftesidenote]%
       \@tufte@sidenote@font\@tufte@sidenote@justification%
       \@textsuperscript{\tiny\thesidenote}\,%
+      \setlength{\parfillskip}{0pt plus 1fil}%
+      \setlength{\emergencystretch}{3em}%
       #3%
     \end{mdframed}%
   }%
@@ -1167,6 +1178,8 @@
     \vspace*{#1}%
     \begin{mdframed}[style=tuftesidenote]%
       \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par%
+      \setlength{\parfillskip}{0pt plus 1fil}%
+      \setlength{\emergencystretch}{3em}%
       #2%
     \end{mdframed}%
   }%
@@ -1202,6 +1215,8 @@
   \end{lrbox}%
   \marginpar{%
     \begin{mdframed}[style=tuftesidenote]%
+      \setlength{\parfillskip}{0pt plus 1fil}%
+      \setlength{\emergencystretch}{3em}%
       \usebox{\@tufte@margin@floatbox}%
     \end{mdframed}%
   }%
