@@ -866,7 +866,6 @@
 \RequirePackage[dvipsnames,svgnames]{xcolor}% load before bidi
 \RequirePackage{etoolbox}% needed for mdframed
 \RequirePackage{needspace}% helps with page breaking
-\RequirePackage{tikz}% needed for better mdframed page breaks
 \RequirePackage{mdframed}% for page-breaking sidenotes
 \mdfdefinestyle{tuftesidenote}{%
   hidealllines=true,
@@ -880,8 +879,7 @@
   splitbottomskip=0pt,
   splittopskip=0pt,
   backgroundcolor=white,
-  nobreak=false,
-  framemethod=tikz
+  nobreak=false
 }
 
 %%
@@ -986,24 +984,22 @@
   \@for\@temp@bibkey:=\@tufte@citations\do{\let\@temp@last@bibkey\@temp@bibkey}%
   \marginpar{%
     \vspace*{#1}%
-    \begin{mdframed}[style=tuftesidenote]%
-      \@tufte@citation@font%
-      \@tufte@citation@justification%
-      \@tufte@margin@par% use parindent and parskip settings for marginal text
-      \setlength{\parfillskip}{0pt plus 1fil}%
-      \setlength{\emergencystretch}{3em}%
-      % Loop through all the bibentries, separating them with semicolons and spaces
-      \setcounter{@tufte@num@bibkeys}{0}%
-      \@for\@temp@bibkeyx:=\@tufte@citations\do{%
-        \ifthenelse{\equal{\@temp@last@bibkey}{\@temp@bibkeyx}}%
-          {\ifthenelse{\equal{\value{@tufte@num@bibkeys}}{0}}{}{and\ }%
-           \@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
-           \bibentry{\@temp@bibkeyx}}%
-          {\@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
-           \bibentry{\@temp@bibkeyx};\ }%
-        \stepcounter{@tufte@num@bibkeys}%
-      }%
-    \end{mdframed}%
+    \@tufte@citation@font%
+    \@tufte@citation@justification%
+    \@tufte@margin@par% use parindent and parskip settings for marginal text
+    \setlength{\parfillskip}{0pt plus 1fil}%
+    \setlength{\emergencystretch}{3em}%
+    % Loop through all the bibentries, separating them with semicolons and spaces
+    \setcounter{@tufte@num@bibkeys}{0}%
+    \@for\@temp@bibkeyx:=\@tufte@citations\do{%
+      \ifthenelse{\equal{\@temp@last@bibkey}{\@temp@bibkeyx}}%
+        {\ifthenelse{\equal{\value{@tufte@num@bibkeys}}{0}}{}{and\ }%
+         \@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
+         \bibentry{\@temp@bibkeyx}}%
+        {\@tufte@trim@spaces\@temp@bibkeyx% trim spaces around bibkey
+         \bibentry{\@temp@bibkeyx};\ }%
+      \stepcounter{@tufte@num@bibkeys}%
+    }%
   }%
 }
 
@@ -1073,8 +1069,30 @@
 \renewcommand\@footnotetext[2][0pt]{%
   \marginpar{%
     \vspace*{#1}%
-    \begin{mdframed}[style=tuftesidenote]%
+    \def\baselinestretch{\setspace@singlespace}%
+    \reset@font\footnotesize%
+    \@tufte@margin@par% use parindent and parskip settings for marginal text
+    \protected@edef\@currentlabel{%
+       \csname p@footnote\endcsname\@thefnmark%
+    }%
+    \color@begingroup%
+       \@makefntext{%
+         \setlength{\parfillskip}{0pt plus 1fil}%
+         \setlength{\emergencystretch}{3em}%
+         \ignorespaces#2%
+       }%
+    \color@endgroup%
+  }%
+}
+
+% Ensure this is run after the bidi package has been loaded
+\def\@tufte@pkghook@post@bidi{}%
+\g@addto@macro{\@tufte@pkghook@post@bidi}{%
+  \renewcommand\@footnotetext[2][0pt]{%
+    \marginpar{%
+      \vspace*{#1}%
       \def\baselinestretch{\setspace@singlespace}%
+      \if@rl@footnote\@rltrue\else\@rlfalse\fi%
       \reset@font\footnotesize%
       \@tufte@margin@par% use parindent and parskip settings for marginal text
       \protected@edef\@currentlabel{%
@@ -1087,32 +1105,6 @@
            \ignorespaces#2%
          }%
       \color@endgroup%
-    \end{mdframed}%
-  }%
-}
-
-% Ensure this is run after the bidi package has been loaded
-\def\@tufte@pkghook@post@bidi{}%
-\g@addto@macro{\@tufte@pkghook@post@bidi}{%
-  \renewcommand\@footnotetext[2][0pt]{%
-    \marginpar{%
-      \vspace*{#1}%
-      \begin{mdframed}[style=tuftesidenote]%
-        \def\baselinestretch{\setspace@singlespace}%
-        \if@rl@footnote\@rltrue\else\@rlfalse\fi%
-        \reset@font\footnotesize%
-        \@tufte@margin@par% use parindent and parskip settings for marginal text
-        \protected@edef\@currentlabel{%
-           \csname p@footnote\endcsname\@thefnmark%
-        }%
-        \color@begingroup%
-           \@makefntext{%
-             \setlength{\parfillskip}{0pt plus 1fil}%
-             \setlength{\emergencystretch}{3em}%
-             \ignorespaces#2%
-           }%
-        \color@endgroup%
-      \end{mdframed}%
     }%
   }%
 }%
@@ -1142,16 +1134,14 @@
     % specific number provided
     \sidenotemark[#1]%
   }%
-  % Place the sidenote in the margin using mdframed for page breaking
+  % Place the sidenote in the margin using a minipage for better page breaking
   \marginpar{%
     \vspace*{\@tufte@sidenote@vertical@offset}%
-    \begin{mdframed}[style=tuftesidenote]%
-      \@tufte@sidenote@font\@tufte@sidenote@justification%
-      \@textsuperscript{\tiny\thesidenote}\,%
-      \setlength{\parfillskip}{0pt plus 1fil}%
-      \setlength{\emergencystretch}{3em}%
-      #3%
-    \end{mdframed}%
+    \@tufte@sidenote@font\@tufte@sidenote@justification%
+    \@textsuperscript{\tiny\thesidenote}\,%
+    \setlength{\parfillskip}{0pt plus 1fil}%
+    \setlength{\emergencystretch}{3em}%
+    #3%
   }%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
@@ -1176,12 +1166,10 @@
   \gdef\@tufte@citations{}%           clear out any old citations
   \marginpar{%
     \vspace*{#1}%
-    \begin{mdframed}[style=tuftesidenote]%
-      \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par%
-      \setlength{\parfillskip}{0pt plus 1fil}%
-      \setlength{\emergencystretch}{3em}%
-      #2%
-    \end{mdframed}%
+    \@tufte@marginnote@font\@tufte@marginnote@justification\@tufte@margin@par%
+    \setlength{\parfillskip}{0pt plus 1fil}%
+    \setlength{\emergencystretch}{3em}%
+    #2%
   }%
   \@tufte@print@citations%            print any citations
   \ifthenelse{\boolean{@tufte@loadnatbib}}{%
@@ -1214,11 +1202,9 @@
   {\end{minipage}%
   \end{lrbox}%
   \marginpar{%
-    \begin{mdframed}[style=tuftesidenote]%
-      \setlength{\parfillskip}{0pt plus 1fil}%
-      \setlength{\emergencystretch}{3em}%
-      \usebox{\@tufte@margin@floatbox}%
-    \end{mdframed}%
+    \setlength{\parfillskip}{0pt plus 1fil}%
+    \setlength{\emergencystretch}{3em}%
+    \usebox{\@tufte@margin@floatbox}%
   }%
   }
 
@@ -1472,7 +1458,7 @@
 % Full-page-width area
 
 \newenvironment{fullwidth}
-  {\end{paracol}% End the parallel columns
+  {%
    \ifthenelse{\boolean{@tufte@symmetric}}%
      {\ifthenelse{\boolean{@tufte@changepage}}{\begin{adjustwidth*}{}{-\@tufte@overhang}}{\begin{adjustwidth}[]{}{-\@tufte@overhang}}}%
      {\begin{adjustwidth}{}{-\@tufte@overhang}}%
@@ -1480,10 +1466,6 @@
   {\ifthenelse{\boolean{@tufte@symmetric}}%
     {\ifthenelse{\boolean{@tufte@changepage}}{\end{adjustwidth*}}{\end{adjustwidth}}}%
     {\end{adjustwidth}}%
-   \begin{paracol}{2}% Restart the parallel columns
-   \setcolumnwidth{\textwidth, \dimexpr\marginparwidth+\marginparsep}%
-   \setlength{\columnsep}{\marginparsep}%
-   \switchcolumn[0]*% Return to the main text column
   }
 
 %%
